@@ -52,10 +52,27 @@
         }
 
         const data = await response.json();
-        const message = data._results[0].body;
+        const messages = data._results;
+        
+        let text = '';
+        
+        // Extract the subject, body, and comments from each message
+        messages.forEach(message => {
+          if (message.subject) {
+            text += message.subject + ' ';
+          }
+          if (message.body) {
+            text += message.body + ' ';
+          }
+          if (message.comments) {
+            message.comments.forEach(comment => {
+              text += comment.body + ' ';
+            });
+          }
+        });
 
-        // Extract numbers from the message
-        const numbers = extractNumbers(message);
+        // Extract numbers from the combined text
+        const numbers = extractNumbers(text);
 
         // Display numbers in the sidebar
         displayNumbers(numbers);
@@ -83,7 +100,12 @@
       });
     }
 
-    // Fetch and analyze email content on load
+    // Fetch and analyze email content when the conversation is switched
+    Front.on('conversation.switch', function () {
+      fetchEmailContent();
+    });
+
+    // Initial fetch and analyze email content on load
     fetchEmailContent();
   </script>
 </body>
