@@ -17,8 +17,7 @@
   </style>
 </head>
 <body>
-  <h3>Load Info
-  (Updated Hourly)</h3>
+  <h3>Load Info<br>(Updated Hourly)</h3>
   <div id="numbers"></div>
   <script>
     // Function to fetch and analyze email content
@@ -52,14 +51,16 @@
         // Extract the subject, body, and comments from each message
         messages.forEach(message => {
           if (message.subject) {
-            text += message.subject + ' ';
+            text += ' ' + message.subject;
           }
           if (message.body) {
-            text += message.body + ' ';
+            // Remove HTML tags from body content
+            const bodyText = (new DOMParser()).parseFromString(message.body, 'text/html').body.innerText;
+            text += ' ' + bodyText;
           }
           if (message.comments) {
             message.comments.forEach(comment => {
-              text += comment.body + ' ';
+              text += ' ' + comment.body;
             });
           }
         });
@@ -88,12 +89,18 @@
       const numbersDiv = document.getElementById('numbers');
       numbersDiv.innerHTML = '';
 
-      numbers.forEach(number => {
+      if (numbers.length === 0) {
         const div = document.createElement('div');
-        div.className = 'number';
-        div.textContent = number;
+        div.textContent = 'No numbers found';
         numbersDiv.appendChild(div);
-      });
+      } else {
+        numbers.forEach(number => {
+          const div = document.createElement('div');
+          div.className = 'number';
+          div.textContent = number;
+          numbersDiv.appendChild(div);
+        });
+      }
     }
 
     // Ensure the Front API is ready before fetching content
