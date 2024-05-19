@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Number Highlighter</title>
+  <title>Load Info (Updated Hourly)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -20,24 +20,14 @@
   <h3>Highlighted Numbers</h3>
   <div id="numbers"></div>
   <script>
-    // Plugin manifest as a JavaScript object
-    const manifest = {
-      "description": "Highlight 11-digit numbers starting with 60 in selected emails.",
-      "title": "Number Highlighter",
-      "icon": "icon.png",
-      "external": {
-        "sidebar": {
-          "url": "sidebar.html",
-          "size": 300
-        }
-      }
-    };
-
     // Function to fetch and analyze email content
     async function fetchEmailContent() {
       try {
+        console.log('Fetching conversation ID...');
+        
         // Get the selected conversation ID from Front context
         const conversationId = await Front.context.conversation.getId();
+        console.log('Conversation ID:', conversationId);
 
         // Fetch conversation details using Front API
         const response = await fetch(`https://api2.frontapp.com/conversations/${conversationId}`, {
@@ -52,6 +42,8 @@
         }
 
         const data = await response.json();
+        console.log('Conversation Data:', data);
+
         const messages = data._results;
         
         let text = '';
@@ -71,8 +63,11 @@
           }
         });
 
+        console.log('Extracted Text:', text);
+
         // Extract numbers from the combined text
         const numbers = extractNumbers(text);
+        console.log('Extracted Numbers:', numbers);
 
         // Display numbers in the sidebar
         displayNumbers(numbers);
@@ -100,13 +95,15 @@
       });
     }
 
-    // Fetch and analyze email content when the conversation is switched
+    // Ensure the Front API is ready before fetching content
     Front.on('conversation.switch', function () {
       fetchEmailContent();
     });
 
-    // Initial fetch and analyze email content on load
-    fetchEmailContent();
+    Front.on('app.ready', function () {
+      fetchEmailContent();
+    });
+
   </script>
 </body>
 </html>
